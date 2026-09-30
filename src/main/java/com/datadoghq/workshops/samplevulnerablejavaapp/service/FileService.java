@@ -5,14 +5,29 @@ import com.datadoghq.workshops.samplevulnerablejavaapp.exception.FileReadExcepti
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Service
 public class FileService {
     final static String ALLOWED_PREFIX = "/tmp/files/";
 
     public String readFile(String path) throws FileForbiddenFileException, FileReadException {
-       Paths.get(ALLOWED_PREFIX).resolve(path).normalize();if(!targetPath.startsWith(ALLOWED_PREFIX)) { throw new FileForbiddenFileException("You are not allowed to read" + path);
-                                                                                                       } try (BufferedReader br = new BufferedReader(new FileReader(targetPath.toFile()))){
+
+        Path basePath = Paths.get(ALLOWED_PREFIX)
+                .toAbsolutePath()
+                .normalize();
+
+        Path targetPath = basePath.resolve(path).normalize();
+
+        if (!targetPath.startsWith(basePath)) {
+            throw new FileForbiddenFileException(
+                    "You are not allowed to read " + path);
+        }
+
+        try (BufferedReader br =
+                     new BufferedReader(new FileReader(targetPath.toFile()))) {
+
             StringBuilder sb = new StringBuilder();
             String line = br.readLine();
 
@@ -21,7 +36,9 @@ public class FileService {
                 sb.append(System.lineSeparator());
                 line = br.readLine();
             }
+
             return sb.toString();
+
         } catch (IOException e) {
             throw new FileReadException(e.getMessage());
         }
