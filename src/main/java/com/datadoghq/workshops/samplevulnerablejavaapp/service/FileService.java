@@ -11,10 +11,8 @@ public class FileService {
     final static String ALLOWED_PREFIX = "/tmp/files/";
 
     public String readFile(String path) throws FileForbiddenFileException, FileReadException {
-        if(!path.startsWith(ALLOWED_PREFIX)) {
-            throw new FileForbiddenFileException("You are not allowed to read " + path);
-        }
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+       Paths.get(ALLOWED_PREFIX).resolve(path).normalize();if(!targetPath.startsWith(ALLOWED_PREFIX)) { throw new FileForbiddenFileException("You are not allowed to read" + path);
+                                                                                                       } try (BufferedReader br = new BufferedReader(new FileReader(targetPath.toFile()))){
             StringBuilder sb = new StringBuilder();
             String line = br.readLine();
 
